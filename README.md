@@ -1,0 +1,1 @@
+This api allows users to send money using stellar on the test network
