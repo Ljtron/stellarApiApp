@@ -4,12 +4,16 @@
   "description": "This api is going to be used to send stellar through a mobile app by using the api being created",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "nodemon index.js",
+    "serv": "node index.js"
   },
   "author": "Lincoln A. Mcloud Jr.",
   "license": "ISC",
   "dependencies": {
+    "body-parser": "^1.19.0",
     "express": "^4.17.1",
+    "mongoose": "^5.8.3",
+    "nodemon": "^2.0.2",
     "stellar-sdk": "^3.3.0"
   }
 }
