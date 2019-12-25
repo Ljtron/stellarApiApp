@@ -2,7 +2,7 @@ var StellarSdk = require('stellar-sdk');
 StellarSdk.Network.useTestNetwork();
 const server = new StellarSdk.Server("https://horizon-testnet.stellar.org");
 
-var transfer = function(senderKey, recieverKey, amount){
+var transfer = function(senderKey, recieverKey, amount, memo){
     console.log(amount)
     var sourceKeys = StellarSdk.Keypair
   .fromSecret(senderKey);
@@ -37,7 +37,7 @@ var x = server.loadAccount(destinationId)
       }))
       // A memo allows you to add your own metadata to a transaction. It's
       // optional and does not affect how Stellar treats the transaction.
-      .addMemo(StellarSdk.Memo.text('stellar app'))
+      .addMemo(StellarSdk.Memo.text(memo))
       // Wait a maximum of three minutes for the transaction
       .setTimeout(180)
       .build();

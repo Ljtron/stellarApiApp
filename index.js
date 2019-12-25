@@ -68,18 +68,39 @@ app.post('/transfer', (req,res) =>{
             console.log(send.secretKey)
             console.log(rec.publicKey)
             setTimeout(function(){
-                transferImport(send.secretKey, rec.publicKey, req.body.amount)
+                var message = "Sent " + req.body.amount + " to " + reciever
+                
+                // This function is called when the user makes a transcation with the api
+                transferImport(send.secretKey, rec.publicKey, req.body.amount, message)
                 .then(function(resp){
-                    var message = req.body.user + " has sent " + req.body.amount + " to " + rec.publicKey
-                    res.json({
-                        "amount": req.body.amount,
-                        "reciever": rec.publicKey,
-                        "message": message
+                    var fee = (parseInt(req.body.amount) * 0.25).toFixed(2)
+                    
+                    // This functions takes a fee from the user when they make a transcation with the stellar app using the api
+                    transferImport(send.secretKey, "GDSUMED6OE7SGLT25KQLYJBYAHFO3XEGAA5AUVOLARIDP5B2FBC7ZMBS", fee.toString(), "Stellar cash app fee")
+                    .then(function(resp1){
+                        var message = req.body.user + " has sent " + req.body.amount + " to " + rec.publicKey
+                        res.json({
+                            "amount": req.body.amount,
+                            "reciever": rec.publicKey,
+                            "message": message,
+                            "total": (parseInt(req.body.amount) + parseInt(fee)),
+                            "error": null
+                        })
+
+                    })
+                    .catch(function(err1){
+                        console.log(err1)
+                        res.json({
+                            "error": err1
+                        })
+
                     })
                 })
                 .catch(function(err){
                     console.log(err)
-                    res.send("Opps")
+                    res.json({
+                        "error": err
+                    })
                 })
             }, 2000)
         })
