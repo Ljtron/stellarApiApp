@@ -3,7 +3,8 @@ var bodyParser = require("body-parser"); // Import that accepts data through the
 var StellarSdk = require('stellar-sdk'); // connects takes the information from the stellar network
 var mongoose = require('mongoose'); // Import that controls the database
 var user = require("./models/user"); // The model for the user
-var transferImport = require("./helperFunctions/transfer")
+var transferImport = require("./helperFunctions/transfer") //This library is the function that makes the stellar transcation
+var balance = require("./helperFunctions/balance") //This library returns the balnce of a user's stellar
 
 
 const app = express() // This variable holds the class express
@@ -54,26 +55,55 @@ app.get('/', (req, res) => {
 
 })*/
 
+// This route takes the user's name and checks their balance
+app.post('/balance', function(req, res){
+    var name = req.body.name
+
+    user.findOne({'name': name}, function(err, doc){
+        if(err) res.json({"error": err})
+        else if(!doc){
+            res.json({"error": "The user doesn't exist"})
+        }
+        else{
+            setTimeout(function(){
+                balance(doc.publicKey)
+                .then(function(resp){
+                    res.json({
+                        'amount': resp,
+                        'error': null
+                    })
+                })
+            }, 1500)
+        }
+    })
+})
+
 // This route allows the user to send an amount they set
 app.post('/transfer', (req,res) =>{
     var sender = req.body.user
     var reciever = req.body.reciever
     //var amount = toString(req.body.amount)
-    console.log(sender)
-    console.log(req.body.amount)
-    console.log(reciever)
+    //console.log(sender)
+    //console.log(req.body.amount)
+    //console.log(reciever)
 
-    user.findOne({'name': sender}, function(err, send){
-        user.findOne({'name': reciever}, function(err,rec){
-            console.log(send.secretKey)
-            console.log(rec.publicKey)
+    user.findOne({'name': sender}, function(err, send){ //finds the sender and their private key
+        user.findOne({'name': reciever}, function(err,rec){ //finds the reciever and their public key
+            //console.log(send.secretKey)
+            //console.log(rec.publicKey)
             setTimeout(function(){
                 var message = "Sent " + req.body.amount + " to " + reciever
-                
-                // This function is called when the user makes a transcation with the api
+                var fee = (parseInt(req.body.amount) * 0.25).toFixed(2)
+                var stellarFee = 0.00001
+                var total = (parseInt(req.body.amount) + parseInt(fee) + stellarFee)
+
+                balance(send.publicKey)
+                .then(function(resp2){
+                    if(parseInt(total) < resp2){
+                        // This function is called when the user makes a transcation with the api
                 transferImport(send.secretKey, rec.publicKey, req.body.amount, message)
                 .then(function(resp){
-                    var fee = (parseInt(req.body.amount) * 0.25).toFixed(2)
+                    //var fee = (parseInt(req.body.amount) * 0.25).toFixed(2)
                     
                     // This functions takes a fee from the user when they make a transcation with the stellar app using the api
                     transferImport(send.secretKey, "GDSUMED6OE7SGLT25KQLYJBYAHFO3XEGAA5AUVOLARIDP5B2FBC7ZMBS", fee.toString(), "Stellar cash app fee")
@@ -83,7 +113,7 @@ app.post('/transfer', (req,res) =>{
                             "amount": req.body.amount,
                             "reciever": rec.publicKey,
                             "message": message,
-                            "total": (parseInt(req.body.amount) + parseInt(fee)),
+                            "total": total,
                             "error": null
                         })
 
@@ -102,6 +132,20 @@ app.post('/transfer', (req,res) =>{
                         "error": err
                     })
                 })
+                    }
+                    else{
+                        res.json({
+                            "error": "insuffienct amount of funds to make the transcation"
+                        })
+                    }
+                })
+                .catch(function(err){
+                    res.json({
+                        "error": "Your stellar account doesn't exist"
+                    })
+                })
+                
+                
             }, 2000)
         })
     })
