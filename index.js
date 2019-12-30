@@ -5,6 +5,7 @@ var mongoose = require('mongoose'); // Import that controls the database
 var user = require("./models/user"); // The model for the user
 var transferImport = require("./helperFunctions/transfer") //This library is the function that makes the stellar transcation
 var balance = require("./helperFunctions/balance") //This library returns the balnce of a user's stellar
+require('dotenv').config() //Allows access to my .env file
 
 
 const app = express() // This variable holds the class express
@@ -13,7 +14,7 @@ app.use(bodyParser.json());
 
 StellarSdk.Network.useTestNetwork();
 const server = new StellarSdk.Server("https://horizon-testnet.stellar.org");
-var url = "mongodb://localhost:27017/stellarApp";
+var url =  process.env.mongoDriver;
 mongoose.connect(url, {useNewUrlParser: true});
 const port = 3000
 
@@ -28,13 +29,13 @@ app.get('/', (req, res) => {
 
 /*app.post('/createUser', (req, res) =>{
     var name = req.body.name
-    var account = StellarSdk.Keypair.fromSecret(secretKeys[parseInt(req.body.account)]).publicKey()
+    var account = StellarSdk.Keypair.fromSecret(req.body.account).publicKey()
     var email = req.body.email
     var userdata = {
         name: name,
         email: email,
         publicKey: account,
-        secretKey: secretKeys[parseInt(req.body.account)]
+        secretKey: req.body.account
     }
     var newUser = new user(userdata);
     newUser.save(function(err, ret){
@@ -151,4 +152,4 @@ app.post('/transfer', (req,res) =>{
     })
 })
 
-app.listen(port, () => console.log(`Example app listening on port ${port}!`))
+app.listen(port, '192.168.1.129',() => console.log(`Example app listening on port ${port}!`))
