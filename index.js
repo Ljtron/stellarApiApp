@@ -154,4 +154,5 @@ app.post('/transfer', (req,res) =>{
 })
 
 // raspberry address is 192.168.3.152
+console.log(os.hostname())
 app.listen(port, os.hostname(),() => console.log(`Example app listening on port ${port}!`))
