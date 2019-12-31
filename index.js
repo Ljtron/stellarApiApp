@@ -5,7 +5,7 @@ var mongoose = require('mongoose'); // Import that controls the database
 var user = require("./models/user"); // The model for the user
 var transferImport = require("./helperFunctions/transfer") //This library is the function that makes the stellar transcation
 var balance = require("./helperFunctions/balance") //This library returns the balnce of a user's stellar
-var os = require('os') //This import has access to the operating system
+var ip = require('ip') //This import has access to ip address
 require('dotenv').config() //Allows access to my .env file
 
 
@@ -154,5 +154,5 @@ app.post('/transfer', (req,res) =>{
 })
 
 // raspberry address is 192.168.3.152
-console.log(os.hostname())
-app.listen(port, os.hostname(),() => console.log(`Example app listening on port ${port}!`))
+console.log(ip.address())
+app.listen(port, ip.address() ,() => console.log(`Example app listening on port ${port}!`))
