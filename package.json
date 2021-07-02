@@ -16,6 +16,6 @@
     "ip": "^1.1.5",
     "mongoose": "^5.8.3",
     "nodemon": "^2.0.2",
-    "stellar-sdk": "^3.3.0"
+    "stellar-sdk": "^8.2.3"
   }
 }
